@@ -1,0 +1,8 @@
+﻿{
+  "static": {
+    "excludeRules": []
+  },
+  "help": {
+    "excludeFunctions": []
+  }
+}
