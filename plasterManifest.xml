@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>InternalPsModule</name>
+    <id>9214fb22-5f31-448c-b2e8-0f5ecedb1429</id>
+    <version>1.0.0</version>
+    <title>InternalPsModuleTemplate</title>
+    <description>A very light Plaster template for internal PowerShell module.</description>
+    <author>Roberto Desideri</author>
+    <tags/>
+  </metadata>
+  <parameters>
+    <parameter name='AuthorName' type="user-fullname" prompt="Author name" />
+    <parameter name='AuthorEmail' type="user-email" prompt="Author email" />
+    <parameter name='ModuleName' type="text" prompt="Name of your module" />
+    <parameter name='ModuleDescription' type="text" prompt="Brief description on this module" />
+    <parameter name='ModuleVersion' type="text" prompt="Initial module version" default='0.0.1' />
+    <parameter name='ModuleFolders' type='multichoice' prompt='Please select folders to include' default='0,1'>
+      <choice label='&amp;public' value='public' help='Folder containing public functions'/>
+      <choice label='pri&amp;vate' value='private' help='Folder containing private functions that are not exposed to users'/>
+      <choice label='&amp;classes' value='classes' help='Folder containing classes'/>
+      <choice label='&amp;resources' value='resources' help='Folder containing any resource required by the module'/>
+    </parameter>
+    <parameter name='Schema' type='choice' prompt='Add a schema folder?' default='0'>
+      <choice label='&amp;Yes' value='Yes' help='Adds /schemas/'/>
+      <choice label='&amp;No' value='No' help='Does not adds /schemas/'/>
+    </parameter>
+  </parameters>
+  <content>
+    <message>Creating test folder and files</message>
+    <file source='' destination='tests'/>
+    <templateFile source='resources\tests\features.tests.ps1' destination='tests\features.tests.ps1'/>
+    <templateFile source='resources\tests\help.tests.ps1' destination='tests\help.tests.ps1'/>
+    <templateFile source='resources\tests\static.tests.ps1' destination='tests\static.tests.ps1'/>
+    <file source='resources\tests\test.cfg.json' destination='tests\test.cfg.json'/>
+    <file source='' destination='tests\unit'/>
+    <templateFile source='resources\tests\unit\unit.tests.ps1' destination='tests\unit\unit.tests.ps1'/>
+    <message>Creating code folders</message>
+    <file source='' destination='src'/>
+    <file source='' destination='schemas' condition='$PLASTER_PARAM_Schema -eq "Yes"'/>
+    <file source='resources\src\module.psm1' destination='src\${PLASTER_PARAM_ModuleName}.psm1'/>
+    <file source='' destination='src\public' condition='$PLASTER_PARAM_ModuleFolders -contains "public"'/>
+    <file source='' destination='src\private' condition='$PLASTER_PARAM_ModuleFolders -contains "private"'/>
+    <file source='' destination='src\resources' condition='$PLASTER_PARAM_ModuleFolders -contains "resources"'/>
+    <file source='' destination='src\classes' condition='$PLASTER_PARAM_ModuleFolders -contains "classes"'/>
+    <message>Deploying root directory files</message>
+    <templateFile source='resources\deploy.ps1' destination='deploy.ps1'/>
+    <templateFile source='resources\README.md' destination='README.md'/>
+    <templateFile source='resources\test.ps1' destination='test.ps1'/>
+    <message>Creating module manifest</message>
+    <newModuleManifest destination='src\${PLASTER_PARAM_ModuleName}.psd1'
+      moduleVersion='$PLASTER_PARAM_ModuleVersion'
+      rootModule='${PLASTER_PARAM_ModuleName}.psm1'
+      author='$PLASTER_PARAM_AuthorName'
+      companyName='${PLASTER_PARAM_AuthorName}'
+      description='$PLASTER_PARAM_ModuleDescription'
+      encoding='UTF8-NoBOM'/>
+    </content>
+  </plasterManifest>
