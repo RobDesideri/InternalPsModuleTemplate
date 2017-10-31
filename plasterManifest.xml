@@ -43,21 +43,22 @@
     <message>Creating code folders</message>
     <file source='' destination='src'/>
     <file source='' destination='schemas' condition='$PLASTER_PARAM_Schema -eq "Yes"'/>
-    <file source='resources\module.psm1' destination='${PLASTER_PARAM_ModuleName}.psm1'
-      condition='$PLASTER_PARAM_Manifest -eq "Yes"'/>
-    <templateFile source='resources\module-no-manifest.psm1' destination='${PLASTER_PARAM_ModuleName}.psm1'
-      condition='$PLASTER_PARAM_Manifest -eq "No"'/>
     <file source='' destination='src\public' condition='$PLASTER_PARAM_ModuleFolders -contains "public"'/>
     <file source='' destination='src\private' condition='$PLASTER_PARAM_ModuleFolders -contains "private"'/>
     <file source='' destination='src\resources' condition='$PLASTER_PARAM_ModuleFolders -contains "resources"'/>
     <file source='' destination='src\classes' condition='$PLASTER_PARAM_ModuleFolders -contains "classes"'/>
-    <message>Deploying root directory files</message>
-    <templateFile source='resources\deploy.ps1' destination='deploy.ps1'
+    <message>Deploying cd files</message>
+    <templateFile source='resources\cd\deploy.ps1' destination='cd\deploy.ps1'
       condition='$PLASTER_PARAM_Manifest -eq "Yes"'/>
-    <templateFile source='resources\deploy-no-manifest.ps1' destination='deploy.ps1'
+    <templateFile source='resources\cd\deploy-no-manifest.ps1' destination='cd\deploy.ps1'
+      condition='$PLASTER_PARAM_Manifest -eq "No"'/>
+       <templateFile source='resources\cd\test.ps1' destination='cd\test.ps1'/>
+    <message>Deploying root directory files</message>
+    <file source='resources\module.psm1' destination='${PLASTER_PARAM_ModuleName}.psm1'
+      condition='$PLASTER_PARAM_Manifest -eq "Yes"'/>
+    <templateFile source='resources\module-no-manifest.psm1' destination='${PLASTER_PARAM_ModuleName}.psm1'
       condition='$PLASTER_PARAM_Manifest -eq "No"'/>
     <templateFile source='resources\README.md' destination='README.md'/>
-    <templateFile source='resources\test.ps1' destination='test.ps1'/>
     <message>Creating module manifest</message>
     <newModuleManifest destination='${PLASTER_PARAM_ModuleName}.psd1'
       condition='$PLASTER_PARAM_Manifest -eq "Yes"'

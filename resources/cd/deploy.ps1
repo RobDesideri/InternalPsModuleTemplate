@@ -4,7 +4,8 @@
   [switch]$NoVersionDirInDeploy
 )
 
-$srcPath = "$PSScriptRoot\src"
+$root = Split-Path $PSScriptRoot -Parent
+$srcPath = "$root\src"
 $moduleName = '<%= $PLASTER_PARAM_ModuleName %>'
 
 function GetModuleCode () {
@@ -27,9 +28,8 @@ function GetModuleCode () {
 }
 
 # Check version
-$psmContent = Get-Content "$PSScriptRoot\$moduleName.psm1"
-Invoke-Expression $([string]$($psmContent)[0]) | Out-Null
-$lastVersion = [version]$script:ModuleVersion
+$manifestObj = Import-PowerShellDataFile "$root\$moduleName.psd1"
+$lastVersion = [version]$manifestObj.ModuleVersion
 if ($lastVersion -ge $Version) {
   throw "Version '$Version' cannot be equal or lower to the existing version '$($manifestObj.ModuleVersion)'"
 }
@@ -58,26 +58,23 @@ elseif (-not ($firstExecution)) {
   New-Item -Path $deployDir -Force -ErrorAction Stop | Out-Null
 }
 
-# update version in psm file in src
-$psmContent[0] = '[version]$script:ModuleVersion = "' + $Version.ToString() + '"'
-$psmContent | Out-File "$PSScriptRoot\$moduleName.psm1"
+# Update version in both src and deploy manifest file
+$manifestObj.ModuleVersion = $Version
+Remove-Item "$root\$moduleName.psd1" -Force | Out-Null
+New-ModuleManifest "$root\$moduleName.psd1" @manifestObj | Out-Null
 
 # Get joined code for module creation
 $moduleCode = GetModuleCode
 
 # Update functions to export
 $publicFunctions = (Get-ChildItem -Path "$srcPath\public" -Filter '*.ps1' -Recurse).BaseName
-$expression = 'Export-ModuleMember -Function @('
-foreach ($function in $publicFunctions) {
-  $expression += "`n" + '  ' + "'$function'" + "`n"
-}
-$expression = $expression.Trim()
-$expression += ')'
-$moduleCode += "`n`n" + $expression
+$manifestObj.FunctionsToExport = $publicFunctions
 
 # Write out the module script
 New-Item "$deployDir\$moduleName.psm1" -ItemType File -Value $moduleCode | Out-Null
 
+# Write out manifest file in deploy dir
+New-ModuleManifest "$deployDir\$moduleName.psd1" @manifestObj | Out-Null
 
 # Copy module resources
 if (Test-Path "$srcPath\resources") {

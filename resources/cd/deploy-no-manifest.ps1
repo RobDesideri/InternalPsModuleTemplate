@@ -4,7 +4,8 @@
   [switch]$NoVersionDirInDeploy
 )
 
-$srcPath = "$PSScriptRoot\src"
+$root = Split-Path $PSScriptRoot -Parent
+$srcPath = "$root\src"
 $moduleName = '<%= $PLASTER_PARAM_ModuleName %>'
 
 function GetModuleCode () {
@@ -27,8 +28,9 @@ function GetModuleCode () {
 }
 
 # Check version
-$manifestObj = Import-PowerShellDataFile "$PSScriptRoot\$moduleName.psd1"
-$lastVersion = [version]$manifestObj.ModuleVersion
+$psmContent = Get-Content "$root\$moduleName.psm1"
+Invoke-Expression $([string]$($psmContent)[0]) | Out-Null
+$lastVersion = [version]$script:ModuleVersion
 if ($lastVersion -ge $Version) {
   throw "Version '$Version' cannot be equal or lower to the existing version '$($manifestObj.ModuleVersion)'"
 }
@@ -57,23 +59,26 @@ elseif (-not ($firstExecution)) {
   New-Item -Path $deployDir -Force -ErrorAction Stop | Out-Null
 }
 
-# Update version in both src and deploy manifest file
-$manifestObj.ModuleVersion = $Version
-Remove-Item "$PSScriptRoot\$moduleName.psd1" -Force | Out-Null
-New-ModuleManifest "$PSScriptRoot\$moduleName.psd1" @manifestObj | Out-Null
+# update version in psm file in src
+$psmContent[0] = '[version]$script:ModuleVersion = "' + $Version.ToString() + '"'
+$psmContent | Out-File "$root\$moduleName.psm1"
 
 # Get joined code for module creation
 $moduleCode = GetModuleCode
 
 # Update functions to export
 $publicFunctions = (Get-ChildItem -Path "$srcPath\public" -Filter '*.ps1' -Recurse).BaseName
-$manifestObj.FunctionsToExport = $publicFunctions
+$expression = 'Export-ModuleMember -Function @('
+foreach ($function in $publicFunctions) {
+  $expression += "`n" + '  ' + "'$function'" + "`n"
+}
+$expression = $expression.Trim()
+$expression += ')'
+$moduleCode += "`n`n" + $expression
 
 # Write out the module script
 New-Item "$deployDir\$moduleName.psm1" -ItemType File -Value $moduleCode | Out-Null
 
-# Write out manifest file in deploy dir
-New-ModuleManifest "$deployDir\$moduleName.psd1" @manifestObj | Out-Null
 
 # Copy module resources
 if (Test-Path "$srcPath\resources") {
