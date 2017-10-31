@@ -2,9 +2,12 @@
 
 A very light Plaster template for internal PowerShell module:
 
+- PSM file in root project for smart debug
+- Tests scaffold
+- CD scripts (build + test)
 - No PSGallery
-- No documentation
-- No license
+- No mkdocs
+- No license insertion
 
 You can choose some features:
 - Code directories (_public_, _private_, _classes_, _resources_)
