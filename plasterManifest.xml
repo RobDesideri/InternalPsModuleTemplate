@@ -48,9 +48,9 @@
     <file source='' destination='src\resources' condition='$PLASTER_PARAM_ModuleFolders -contains "resources"'/>
     <file source='' destination='src\classes' condition='$PLASTER_PARAM_ModuleFolders -contains "classes"'/>
     <message>Deploying cd files</message>
-    <templateFile source='resources\cd\deploy.ps1' destination='cd\deploy.ps1'
+    <templateFile source='resources\cd\build.ps1' destination='cd\build.ps1'
       condition='$PLASTER_PARAM_Manifest -eq "Yes"'/>
-    <templateFile source='resources\cd\deploy-no-manifest.ps1' destination='cd\deploy.ps1'
+    <templateFile source='resources\cd\build-no-manifest.ps1' destination='cd\build.ps1'
       condition='$PLASTER_PARAM_Manifest -eq "No"'/>
        <templateFile source='resources\cd\test.ps1' destination='cd\test.ps1'/>
     <message>Deploying root directory files</message>
