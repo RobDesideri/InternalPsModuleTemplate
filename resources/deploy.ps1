@@ -27,7 +27,7 @@ function GetModuleCode () {
 }
 
 # Check version
-$manifestObj = Import-PowerShellDataFile "$srcPath\$moduleName.psd1"
+$manifestObj = Import-PowerShellDataFile "$PSScriptRoot\$moduleName.psd1"
 $lastVersion = [version]$manifestObj.ModuleVersion
 if ($lastVersion -ge $Version) {
   throw "Version '$Version' cannot be equal or lower to the existing version '$($manifestObj.ModuleVersion)'"
@@ -59,8 +59,8 @@ elseif (-not ($firstExecution)) {
 
 # Update version in both src and deploy manifest file
 $manifestObj.ModuleVersion = $Version
-Remove-Item "$srcPath\$moduleName.psd1" -Force | Out-Null
-New-ModuleManifest "$srcPath\$moduleName.psd1" @manifestObj | Out-Null
+Remove-Item "$PSScriptRoot\$moduleName.psd1" -Force | Out-Null
+New-ModuleManifest "$PSScriptRoot\$moduleName.psd1" @manifestObj | Out-Null
 
 # Get joined code for module creation
 $moduleCode = GetModuleCode

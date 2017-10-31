@@ -1,9 +1,7 @@
-﻿[version]$script:ModuleVersion = '<%= $PLASTER_PARAM_ModuleVersion %>'
-
-$functionFolders = @('public', 'private', 'classes')
+﻿$functionFolders = @('public', 'private', 'classes')
 ForEach ($folder in $functionFolders)
 {
-    $folderPath = Join-Path -Path $PSScriptRoot -ChildPath $folder
+    $folderPath = Join-Path -Path "$PSScriptRoot\src" -ChildPath $folder
     If (Test-Path -Path $folderPath)
     {
         Write-Verbose -Message "Importing from $folder"
@@ -15,5 +13,5 @@ ForEach ($folder in $functionFolders)
         }
     }
 }
-$publicFunctions = (Get-ChildItem -Path "$PSScriptRoot\public" -Filter '*.ps1' -Recurse).BaseName
+$publicFunctions = (Get-ChildItem -Path "$PSScriptRoot\src\public" -Filter '*.ps1' -Recurse).BaseName
 Export-ModuleMember -Function $publicFunctions

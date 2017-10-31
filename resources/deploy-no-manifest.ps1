@@ -27,7 +27,7 @@ function GetModuleCode () {
 }
 
 # Check version
-$psmContent = Get-Content "$srcPath\$moduleName.psm1"
+$psmContent = Get-Content "$PSScriptRoot\$moduleName.psm1"
 Invoke-Expression $([string]$($psmContent)[0]) | Out-Null
 $lastVersion = [version]$script:ModuleVersion
 if ($lastVersion -ge $Version) {
@@ -60,7 +60,7 @@ elseif (-not ($firstExecution)) {
 
 # update version in psm file in src
 $psmContent[0] = '[version]$script:ModuleVersion = "' + $Version.ToString() + '"'
-$psmContent | Out-File "$srcPath\$moduleName.psm1"
+$psmContent | Out-File "$PSScriptRoot\$moduleName.psm1"
 
 # Get joined code for module creation
 $moduleCode = GetModuleCode
