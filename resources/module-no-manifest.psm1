@@ -1,4 +1,6 @@
 ﻿[version]$script:ModuleVersion = '<%= $PLASTER_PARAM_ModuleVersion %>'
+[string]$script:Author = '<%= $PLASTER_PARAM_AuthorName %>'
+[string]$script:AuthorEmail = '<%= $PLASTER_PARAM_AuthorEmail %>'
 
 $functionFolders = @('public', 'private', 'classes')
 ForEach ($folder in $functionFolders)
